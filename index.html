@@ -5,44 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tabs com api</title>
     <style>
-        body{
+        body {
             font-family: Arial, Helvetica, sans-serif;
             max-width: 700px;
             margin: 40px auto;
             background-color: #f4f4f4;
         }
-        .tabs{
+
+        .tabs {
             display: flex;
             margin-bottom: 10px;
         }
-        .tab-btn{
+
+        .tab-btn {
             flex: 1;
             padding: 15px;
             cursor: pointer;
             border: none;
             background-color: #ddd;
             font-size: 16;
-         }
-         .tab-btn.active{
+        }
+
+        .tab-btn.active {
             background-color: #007bff;
             color: #f4f4f4;
-         }
-         .tab-content{
+        }
+
+        .tab-content {
             display: none;
             background-color: #f4f4f4;
             padding: 20px;
             border-radius: 8px;
-         }
-         .tab-content.active{
-            display: block; 
         }
-        input{
+
+        .tab-content.active {
+            display: block;
+        }
+
+        input {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
             box-sizing: border-box;
         }
-        button{
+
+        button {
             padding: 12px;
             background-color: #28a745;
             color: #f4f4f4;
@@ -52,7 +59,8 @@
             font-size: 16px;
             border-radius: 5px;
         }
-        .resultado{
+
+        .resultado {
             margin-top: 15px;
             padding: 15px;
             background-color: #eee;
@@ -60,7 +68,6 @@
             min-height: 40px;
 
         }
-    
     </style>
 </head>
 
@@ -79,6 +86,13 @@
         <button onclick="calcularImc()">Calcular IMC</button>
         <div class="resultado" id="resultadoImc"></div>
     </div>
+    <div class="tab-content active">
+        <h2>Calcular o média</h2>
+        <input type="number" id="nota1" placeholder="Digite sua primeira nota">
+        <input type="number" id="nota2" placeholder="Digite sua segunda nota">
+        <button onclick="calcularMedia()">Calcular média</button>
+        <div class="resultado" id="resultadoMedia"></div>
+    </div>
     <script>
         function abrirTab(index) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'))
@@ -87,29 +101,82 @@
             document.querySelectorAll('.tab-content')[index].classList.add('active')
             document.querySelectorAll('.tab-btn')[index].classList.add('active')
         }
-        function formatarResposta(resultado){
-            if(resultado.erro){
-                return `<div style="color:#721c24;padding:15px;background:3f8d7da;border:1px solid #f5c6cb;border-radius:5px;font-weight:bold">
-                  erro:${resultado.erro}</div>`; 
-                }
-                let html=`<div style="padding:15px;background:#d4eda;color:#155724;border:1px: solid #c3e6cb;border-radius:5px;"`
-              html+=`<h3 style="margin-top=0;margin-bottom:15px; border-bottom:1px solid #c3e6cb;padding-bottom:5px;">sucesso</h3>`
-              html+=`<ul style="list-style=type:none;padding-left:0;margin:0"`;
+        function formatarResposta(resultado) {
 
-              for(const[key,value]of Object.entries[resultado]){
-                let label=key.charAt(0).toLocaleUpperCase()+key.slice(1)
-                if(key.toLocaleUpperCase()==="imc"){
-                    label="IMC";
+            if (resultado.erro) {
+                return `
+        <div style="
+            color:#721c24;
+            padding:15px;
+            background:#f8d7da;
+            border:1px solid #f5c6cb;
+            border-radius:5px;
+            font-weight:bold;
+        ">
+            Erro: ${resultado.erro}
+        </div>
+    `;
+            }
+
+            let html = `
+    <div style="
+        padding:15px;
+        background:#d4edda;
+        color:#155724;
+        border:1px solid #c3e6cb;
+        border-radius:5px;
+    ">
+`;
+
+            html += `
+    <h3 style="
+        margin-top:0;
+        margin-bottom:15px;
+        border-bottom:1px solid #c3e6cb;
+        padding-bottom:5px;
+    ">
+        Sucesso
+    </h3>
+`;
+
+            html += `
+    <ul style="
+        list-style-type:none;
+        padding-left:0;
+        margin:0;
+    ">
+`;
+
+            for (const [key, value] of Object.entries(resultado)) {
+
+                let label = key.charAt(0).toUpperCase() + key.slice(1);
+
+                if (key.toUpperCase() === "IMC") {
+                    label = "IMC";
                 }
-                html+=`<li style="margin-bottom:8px;font-size:16px;">
-                    <strong style="color:#0b2e13">${label}</strong> ${value}
-                    </li>`
-              }
-              html+=`</ul>
-              <div>`;
-                return html;
-             }
-            async function calcularImc(){
+
+                html += `
+        <li style="margin-bottom:8px;font-size:16px;">
+            <strong style="color:#0b2e13;">
+                ${label}:
+            </strong>
+            ${value}
+        </li>
+    `;
+            }
+
+            html += `
+    </ul>
+    </div>
+`;
+
+            return html;
+        }
+
+
+
+        async function calcularImc() {
+    
             const dados = {
                 nome: document.getElementById('nome').value,
                 idade: document.getElementById('idade').value,
@@ -117,19 +184,47 @@
                 peso: document.getElementById('peso').value,
             }
             try {
-                const Response = await fetch("http://localhost3000/imc", {
-                    mathod: "POST", 
-                    Headers: {
-                        "content-type": "application/json"
+                const res = await fetch("http://localhost:3000/imc", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-                    body:JSON.stringify(dados)
+                    body: JSON.stringify(dados)
                 });
-                const resultado = await response.json();
+
+                const resultado = await res.json();
+          
                 document.getElementById("resultadoImc").innerHTML = formatarResposta(resultado)
-             } catch (error) {
+            } catch (error) {
+           
                 document.getElementById("resultadoImc").innerHTML = formatarResposta({
                     erro: " Ocorreu um erro inesperado. Por favor tente novamente mais tarde."
-                }); 
+                });
+            }
+
+        }
+        async function calcularMedia() {
+            const dados = {
+                nota1: document.getElementById('nota1').value,
+                nota2: document.getElementById('nota2').value,
+            }
+            try {
+                const res = await fetch("http://localhost:3000/media", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await res.json();
+          
+                document.getElementById("resultadoMedia").innerHTML = formatarResposta(resultado)
+            } catch (error) {
+           
+                document.getElementById("resultadoMedia").innerHTML = formatarResposta({
+                    erro: " Ocorreu um erro inesperado. Por favor tente novamente mais tarde."
+                });
             }
 
         }

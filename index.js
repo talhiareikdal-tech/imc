@@ -155,6 +155,7 @@ if(window.location.pathname.endsWith('index.html') && !localStorage.getIdem('tok
             numero: document.getElementById("numero").value
         }
 
+
         try {
             const res = await fetch("http://localhost:3000/clientes", {
                 method: "POST", 
@@ -174,34 +175,44 @@ if(window.location.pathname.endsWith('index.html') && !localStorage.getIdem('tok
          });   
         }
     }
-
-
-
-    async function fazerCadastroUsuario(){
-        const dados = {
-            nome: document.getElementById("nome").value,
-            email: document.getElementById("email").value,
-            senha: document.getElementById("senha").value
+    async function buscarClientes(){
+        const cpfBusca = document.getElementById("buscar_cpf").value.trim()
+        if(!cpfBusca){
+            listarClientes()
+            return;
         }
-
         try {
-            const res = await fetch("http://localhost:3000/usuarios", {
-                method: "POST", 
-                headers: {
-                    "content-type": "application/json"
-                },
-                body: JSON.stringify(dados)
-            });
-          
-            const resultado = await res.json();
-         
-            document.getElementById("resultadoUsuario").innerHTML = formatarResposta(resultado);
+            const res = await fetch("http://localhost:3000/clientes")
+            const clientes = await res.json();
+            const cpfLimpo = cpfBusca.replace(/\D/g, '');
+            const filtrados = clientes.filter(c=>c.cpf && c.cpf.replace(/\D/g,'')==cpfLimpo);
+            renderizarClientes(filtrados);
         } catch (error) {
-   
-         document.getElementById("resultadoUsuario").innerHTML = formatarResposta({
-            erro: "Ocorreu um erro inesperado. Por favor tente novamente mais tarde."
-         });   
+            const container = document.getElementById("listarClientes");
+            if(container){
+                container.innerHTML=`<div style= "color:#721c24; padding:15px; background:#f8d7da; border: 1px solid #f5c6cb; border-radius: 5px"> façha ao buscar cliente</div>`
+            }
         }
     }
+    async function listarClientes(){
+        const buscarInput = document.getElementById("buscar_cpf")
+        if(buscarInput){
+            buscarInput.value = '';
+        }
+        try {
+            const res = await fetch("http://localhost:3000/clientes");
+            const clientes = await res.json();
+            renderizarClientes(clientes);
+        } catch (error) {
+            const container = document.getElementById("listarClientes");
+            if(container){
+                container.innerHTML=`<div style= "color:#721c24; padding:15px; background:#f8d7da; border: 1px solid #f5c6cb; border-radius: 5px"> falha ao carregar clientes do servidor</div>`
+            }
+        }
+    }
+    function renderizarClientes(clientes){
+        const container = document.getElementById("listarClientes");
+        
+    }
 
-    
+   
